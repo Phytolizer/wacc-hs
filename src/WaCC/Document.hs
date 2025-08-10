@@ -20,15 +20,14 @@ data Document = Document
   { path :: FilePath
   , docContents :: Text
   , lineStarts :: [Int]
-  {- ^ List of starting indices of each line in the document
-
-  Can be binary-searched for a given offset to determine the line number
-  and column number of a character in the document.
-  This is useful for error reporting and diagnostics.
-  The first element is always 0, representing the start of the document.
-  The last element is the total length of the document, and not a real line start.
-  The length of this list is the number of lines in the document.
-  -}
+  -- ^ List of starting indices of each line in the document
+  --
+  -- Can be binary-searched for a given offset to determine the line number
+  -- and column number of a character in the document.
+  -- This is useful for error reporting and diagnostics.
+  -- The first element is always 0, representing the start of the document.
+  -- The last element is the total length of the document, and not a real line start.
+  -- The length of this list is the number of lines in the document.
   }
 
 readDocument :: FilePath -> IO Document
@@ -64,10 +63,9 @@ docPosition doc offset =
       column = offset - (lineStarts doc !! line)
    in Position (path doc) line column
 
-{- | Pair of offsets. `spanStart` is inclusive, while `spanEnd` is exclusive.
-
-In other words, `Span 0 5` is the range `[0, 5)`.
--}
+-- | Pair of offsets. `spanStart` is inclusive, while `spanEnd` is exclusive.
+--
+-- In other words, `Span 0 5` is the range `[0, 5)`.
 data Span = Span
   { spanStart :: Int
   , spanEnd :: Int

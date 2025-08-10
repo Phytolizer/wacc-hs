@@ -21,6 +21,10 @@ import Control.Lens (
 import Control.Monad (when)
 import Control.Monad.State (State, evalState)
 import Data.Char (isAlpha, isAlphaNum, isDigit)
+import Prelude hiding (lex, span)
+
+import Data.Text qualified as T
+
 import WaCC.Diagnostics (
   Diagnostic,
   DiagnosticReporter,
@@ -30,9 +34,6 @@ import WaCC.Diagnostics (
   reportUnrecognizedToken,
  )
 import WaCC.Document (Document (docContents), Span (Span))
-import Prelude hiding (lex, span)
-
-import Data.Text qualified as T
 
 data TokenType
   = TError

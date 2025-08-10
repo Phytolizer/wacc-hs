@@ -3,14 +3,14 @@ module WaCC.Diagnostics.Reports (
   reportInvalidIdentifier,
 ) where
 
+import Data.Text qualified as T
+
 import WaCC.Diagnostics.Types (
   Diagnostic (Diagnostic),
   DiagnosticReporter (_diagnostics),
   Message,
  )
 import WaCC.Document (Span)
-
-import Data.Text qualified as T
 
 report :: Message -> Span -> DiagnosticReporter -> DiagnosticReporter
 report m s reporter =

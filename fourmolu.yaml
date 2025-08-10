@@ -8,7 +8,7 @@ import-grouping: by-scope-then-qualified
 indent-wheres: false
 record-brace-space: false
 newlines-between-decls: 1
-haddock-style: multi-line
+haddock-style: single-line
 haddock-style-module: null
 haddock-location-signature: auto
 let-style: auto

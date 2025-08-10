@@ -11,6 +11,7 @@ module WaCC.Diagnostics.Types (
 ) where
 
 import System.IO (Handle, hPutStrLn, stderr)
+
 import WaCC.Document (Document, Span (Span), docPosition)
 
 type Message = String

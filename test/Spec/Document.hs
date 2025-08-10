@@ -1,9 +1,10 @@
 module Spec.Document (docTests) where
 
 import Test.HUnit (Test (TestCase, TestLabel, TestList), assertEqual)
-import WaCC.Document (docLineIndex, parseDocument)
 
 import Data.Text qualified as T
+
+import WaCC.Document (docLineIndex, parseDocument)
 
 sampleDoc :: T.Text
 sampleDoc = T.pack "Hello, World!\nThis is a test document.\nIt has multiple lines.\n"
