@@ -13,8 +13,8 @@ where
 import Data.Function ((&))
 import Data.Text (Text)
 
-import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
+import Data.Text qualified as T
+import Data.Text.IO qualified as TIO
 
 data Document = Document
   { path :: FilePath

@@ -4,5 +4,5 @@ module WaCC.Diagnostics (
 )
 where
 
-import WaCC.Diagnostics.Types
 import WaCC.Diagnostics.Reports
+import WaCC.Diagnostics.Types

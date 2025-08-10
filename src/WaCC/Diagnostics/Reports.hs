@@ -10,7 +10,7 @@ import WaCC.Diagnostics.Types (
  )
 import WaCC.Document (Span)
 
-import qualified Data.Text as T
+import Data.Text qualified as T
 
 report :: Message -> Span -> DiagnosticReporter -> DiagnosticReporter
 report m s reporter =

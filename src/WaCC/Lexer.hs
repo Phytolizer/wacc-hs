@@ -32,7 +32,7 @@ import WaCC.Diagnostics (
 import WaCC.Document (Document (docContents), Span (Span))
 import Prelude hiding (lex, span)
 
-import qualified Data.Text as T
+import Data.Text qualified as T
 
 data TokenType
   = TError
