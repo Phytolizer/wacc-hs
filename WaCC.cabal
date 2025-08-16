@@ -29,6 +29,11 @@ library
       WaCC.Diagnostics.Types
       WaCC.Document
       WaCC.Lexer
+      WaCC.Syntax
+      WaCC.Syntax.AST
+      WaCC.Syntax.Parser
+      WaCC.Syntax.Token
+      WaCC.Tree
   other-modules:
       Paths_WaCC
   autogen-modules:

@@ -7,6 +7,7 @@ module WaCC.Document (
   docText,
   docContents,
   Span (..),
+  joinSpans,
 )
 where
 
@@ -73,6 +74,10 @@ data Span = Span
 
 instance Show Span where
   show (Span start end) = show start ++ ".." ++ show end
+
+joinSpans :: Span -> Span -> Span
+joinSpans (Span start1 end1) (Span start2 end2) =
+  Span (min start1 start2) (max end1 end2)
 
 docText :: Document -> Span -> T.Text
 docText doc (Span start end) =

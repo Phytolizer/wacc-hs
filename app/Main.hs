@@ -1,11 +1,38 @@
 module Main (main) where
 
+import Args (CompileStage (..), Options (..), getOptions)
 import System.Exit (exitFailure)
+import WaCC.Diagnostics (getDiagnostics, printDiagnostics)
+import WaCC.Document (Document, Span (Span), docPosition, readDocument)
+import WaCC.Lexer (LexResult (LexResult), lexDocument)
+import WaCC.Syntax.Parser (ParseResult (ParseResult), parseFile)
+import WaCC.Syntax.Token (Token (Token))
+import WaCC.Tree (AnyNode (AnyNode))
 
-import Args (CompileStage (Lex), Options (..), getOptions)
-import WaCC.Diagnostics (printDiagnostics)
-import WaCC.Document (Span (Span), docPosition, readDocument)
-import WaCC.Lexer (LexResult (LexResult), Token (Token), lexDocument)
+lexerStage :: Document -> LexResult -> IO ()
+lexerStage doc (LexResult tokens lexReporter) = do
+  putStrLn "Tokens:"
+  mapM_
+    ( \(Token ty s text) ->
+        let Span start _ = s
+            pos = docPosition doc start
+         in putStrLn $ "@ " ++ show pos ++ ": " ++ show ty ++ " " ++ show text
+    )
+    tokens
+  case getDiagnostics lexReporter of
+    [] -> return ()
+    diagnostics -> do
+      printDiagnostics doc diagnostics
+      exitFailure
+
+parserStage :: Document -> ParseResult -> IO ()
+parserStage doc (ParseResult program parseReporter) = do
+  print $ AnyNode program
+  case getDiagnostics parseReporter of
+    [] -> return ()
+    diagnostics -> do
+      printDiagnostics doc diagnostics
+      exitFailure
 
 main :: IO ()
 main = do
@@ -13,20 +40,12 @@ main = do
   putStrLn $ "Input file: " ++ input
   putStrLn $ "Stop stage: " ++ show stage
   doc <- readDocument input
-  let LexResult tokens diagnostics = lexDocument doc
-   in case stage of
-        Lex -> do
-          putStrLn "Tokens:"
-          mapM_
-            ( \(Token ty s text) ->
-                let Span start _ = s
-                    pos = docPosition doc start
-                 in putStrLn $ "@ " ++ show pos ++ ": " ++ show ty ++ " " ++ show text
-            )
-            tokens
-          case diagnostics of
-            [] -> return ()
-            _ -> do
-              printDiagnostics doc diagnostics
-              exitFailure
-        _ -> return ()
+  let lexResult@(LexResult tokens lexReporter) = lexDocument doc
+  case stage of
+    Lex -> lexerStage doc lexResult
+    _ -> do
+      let parseResult@(ParseResult _ _) = parseFile lexReporter tokens
+      case stage of
+        Parse -> parserStage doc parseResult
+        _ -> do
+          return ()

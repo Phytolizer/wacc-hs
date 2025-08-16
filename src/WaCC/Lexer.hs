@@ -1,10 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module WaCC.Lexer (
-  TokenType (..),
-  Keyword (..),
-  Token (..),
-  Lexer,
   lexDocument,
   LexResult (..),
 )
@@ -21,10 +17,6 @@ import Control.Lens (
 import Control.Monad (when)
 import Control.Monad.State (State, evalState)
 import Data.Char (isAlpha, isAlphaNum, isDigit)
-import Prelude hiding (lex, span)
-
-import Data.Text qualified as T
-
 import WaCC.Diagnostics (
   Diagnostic,
   DiagnosticReporter,
@@ -34,50 +26,10 @@ import WaCC.Diagnostics (
   reportUnrecognizedToken,
  )
 import WaCC.Document (Document (docContents), Span (Span))
+import WaCC.Syntax.Token (Keyword (..), Token (..), TokenType (..))
+import Prelude hiding (lex, span)
 
-data TokenType
-  = TError
-  | TEOF
-  | TWhitespace
-  | TIdentifier
-  | TIntLiteral
-  | TKeyword Keyword
-  | TLParen
-  | TRParen
-  | TLBrace
-  | TRBrace
-  | TSemicolon
-  deriving (Eq)
-
-data Keyword
-  = KInt
-  | KVoid
-  | KReturn
-  deriving (Eq)
-
-instance Show TokenType where
-  show TError = "ERROR"
-  show TEOF = "EOF"
-  show TWhitespace = "WHITESPACE"
-  show TIdentifier = "IDENTIFIER"
-  show TIntLiteral = "INT_LITERAL"
-  show (TKeyword k) = show k
-  show TLParen = "LPAREN"
-  show TRParen = "RPAREN"
-  show TLBrace = "LBRACE"
-  show TRBrace = "RBRACE"
-  show TSemicolon = "SEMICOLON"
-
-instance Show Keyword where
-  show KInt = "KW_INT"
-  show KVoid = "KW_VOID"
-  show KReturn = "KW_RETURN"
-
-data Token = Token
-  { tokenType :: TokenType
-  , tokenSpan :: Span
-  , tokenText :: T.Text
-  }
+import Data.Text qualified as T
 
 data LexerState = LexerState
   { _lexDoc :: Document
@@ -87,7 +39,7 @@ data LexerState = LexerState
   , _lexPeekBuffer :: [Char]
   , _lexTokenType :: TokenType
   , _lexTokenText :: T.Text
-  , _lexReporter :: DiagnosticReporter
+  , _reporter :: DiagnosticReporter
   , _lexHasReported :: Bool
   }
 
@@ -98,14 +50,14 @@ makeLensesFor
   , ("_lexPeekBuffer", "lexPeekBuffer")
   , ("_lexTokenType", "lexTokenType")
   , ("_lexTokenText", "lexTokenText")
-  , ("_lexReporter", "lexReporter")
+  , ("_reporter", "reporter")
   , ("_lexHasReported", "lexHasReported")
   ]
   ''LexerState
 
 data LexResult = LexResult
   { lexTokens :: [Token]
-  , lexDiagnostics :: [Diagnostic]
+  , lexReporter :: DiagnosticReporter
   }
 
 type Lexer a = State LexerState a
@@ -269,7 +221,7 @@ nextToken = do
           text <- use lexTokenText
           start <- use lexTokenStart
           end <- use lexCurrentOffset
-          lexReporter %= reportInvalidIdentifier text (Span start end)
+          reporter %= reportInvalidIdentifier text (Span start end)
           lexHasReported .= True
         _ -> lexTokenType .= TIntLiteral
     Just _ -> pure ()
@@ -290,7 +242,7 @@ nextToken = do
           Nothing -> pure ('\0', 0)
 
         let s = Span start (end + n)
-        lexReporter %= reportUnrecognizedToken ch s
+        reporter %= reportUnrecognizedToken ch s
         return s
   text <- use lexTokenText
   return $ Token ty span text
@@ -307,5 +259,5 @@ lex = go []
 lexInner :: Lexer LexResult
 lexInner = do
   tokens <- lex
-  diagnostics <- getDiagnostics <$> use lexReporter
-  return $ LexResult tokens diagnostics
+  r <- use reporter
+  return $ LexResult tokens r
