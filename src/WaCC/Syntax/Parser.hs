@@ -9,13 +9,12 @@ import Control.Lens (makeLensesFor, use, (%=))
 import Control.Monad.State (State, evalState)
 import Data.List ((!?))
 import Data.Maybe (fromMaybe)
+import Prelude hiding (exp)
+
+import Data.Text qualified as T
+
 import WaCC.Diagnostics.Reports (reportUnexpectedToken)
-import WaCC.Diagnostics.Types (
-  Diagnostic,
-  DiagnosticReporter,
-  getDiagnostics,
-  initReporter,
- )
+import WaCC.Diagnostics.Types (DiagnosticReporter)
 import WaCC.Syntax.AST (
   Expression (Constant),
   FunctionDefinition (Function),
@@ -24,9 +23,6 @@ import WaCC.Syntax.AST (
   Statement (Return),
  )
 import WaCC.Syntax.Token (Keyword (..), Token (..), TokenType (..))
-import Prelude hiding (exp)
-
-import Data.Text qualified as T
 
 data ParserState = ParserState
   { _pTokens :: [Token]

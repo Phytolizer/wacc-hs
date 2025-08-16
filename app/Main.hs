@@ -1,7 +1,8 @@
 module Main (main) where
 
-import Args (CompileStage (..), Options (..), getOptions)
 import System.Exit (exitFailure)
+
+import Args (CompileStage (..), Options (..), getOptions)
 import WaCC.Diagnostics (getDiagnostics, printDiagnostics)
 import WaCC.Document (Document, Span (Span), docPosition, readDocument)
 import WaCC.Lexer (LexResult (LexResult), lexDocument)

@@ -4,6 +4,8 @@ module WaCC.Diagnostics.Reports (
   reportUnexpectedToken,
 ) where
 
+import Data.Text qualified as T
+
 import WaCC.Diagnostics.Types (
   Diagnostic (Diagnostic),
   DiagnosticReporter (_diagnostics),
@@ -11,8 +13,6 @@ import WaCC.Diagnostics.Types (
  )
 import WaCC.Document (Span)
 import WaCC.Syntax.Token (TokenType)
-
-import Data.Text qualified as T
 
 report :: Message -> Span -> DiagnosticReporter -> DiagnosticReporter
 report m s reporter =

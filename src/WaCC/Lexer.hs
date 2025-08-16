@@ -17,19 +17,18 @@ import Control.Lens (
 import Control.Monad (when)
 import Control.Monad.State (State, evalState)
 import Data.Char (isAlpha, isAlphaNum, isDigit)
+import Prelude hiding (lex, span)
+
+import Data.Text qualified as T
+
 import WaCC.Diagnostics (
-  Diagnostic,
   DiagnosticReporter,
-  getDiagnostics,
   initReporter,
   reportInvalidIdentifier,
   reportUnrecognizedToken,
  )
 import WaCC.Document (Document (docContents), Span (Span))
 import WaCC.Syntax.Token (Keyword (..), Token (..), TokenType (..))
-import Prelude hiding (lex, span)
-
-import Data.Text qualified as T
 
 data LexerState = LexerState
   { _lexDoc :: Document

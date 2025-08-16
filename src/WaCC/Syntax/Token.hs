@@ -4,9 +4,9 @@ module WaCC.Syntax.Token (
   Token (..),
 ) where
 
-import WaCC.Document (Span)
-
 import Data.Text qualified as T
+
+import WaCC.Document (Span)
 
 data TokenType
   = TError
