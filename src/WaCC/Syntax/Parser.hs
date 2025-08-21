@@ -70,7 +70,7 @@ matchToken expected = do
 parseExpression :: Parser Expression
 parseExpression = do
   token <- matchToken TIntLiteral
-  let value :: Int = read (T.unpack $ tokenText token)
+  let value = read (T.unpack $ tokenText token)
   return $ Constant token value
 
 parseStatement :: Parser Statement
