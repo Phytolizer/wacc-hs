@@ -6,6 +6,7 @@ module WaCC.Syntax.Parser (
 ) where
 
 import Control.Lens (makeLensesFor, use, (%=))
+import Control.Monad (when)
 import Control.Monad.State (State, evalState)
 import Data.List ((!?))
 import Data.Maybe (fromMaybe)
@@ -60,7 +61,7 @@ matchToken expected = do
   token <- current
   if tokenType token == expected
     then do
-      pTokens %= drop 1
+      when (tokenType token /= TEOF) (pTokens %= drop 1)
       return token
     else do
       pReporter %= reportUnexpectedToken (tokenType token) expected (tokenSpan token)
@@ -103,5 +104,6 @@ parseFile reporter tokens = evalState go $ initParser reporter tokens
   go :: Parser ParseResult
   go = do
     program <- parseProgram
+    _ <- matchToken TEOF
     reporter' <- use pReporter
     return $ ParseResult program reporter'

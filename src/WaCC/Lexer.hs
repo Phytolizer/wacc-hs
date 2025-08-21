@@ -40,6 +40,7 @@ data LexerState = LexerState
   , _lexTokenText :: T.Text
   , _reporter :: DiagnosticReporter
   , _lexHasReported :: Bool
+  , _lexTrivia :: [Token]
   }
 
 makeLensesFor
@@ -51,6 +52,7 @@ makeLensesFor
   , ("_lexTokenText", "lexTokenText")
   , ("_reporter", "reporter")
   , ("_lexHasReported", "lexHasReported")
+  , ("_lexTrivia", "lexTrivia")
   ]
   ''LexerState
 
@@ -73,6 +75,7 @@ initLexer doc =
     T.empty
     initReporter
     False
+    []
 
 lexDocument :: Document -> LexResult
 lexDocument = evalState lexInner . initLexer
@@ -177,6 +180,10 @@ lexWhitespace = do
           lexWhitespace
         _ -> return ()
     _ -> return ()
+  start <- use lexTokenStart
+  end <- use lexCurrentOffset
+  text <- use lexTokenText
+  lexTrivia %= (:) (Token TWhitespace (Span start end) text [])
 
 nextToken :: Lexer Token
 nextToken = do
@@ -226,25 +233,29 @@ nextToken = do
     Just _ -> pure ()
 
   ty <- use lexTokenType
-  start <- use lexTokenStart
-  end <- use lexCurrentOffset
-  hasReported <- use lexHasReported
-  span <-
-    if hasReported || ty /= TError
-      then pure (Span start end)
-      else do
-        errch <- current
-        (ch, n) <- case errch of
-          Just ch -> do
-            move 1
-            return (ch, 1)
-          Nothing -> pure ('\0', 0)
+  if ty == TWhitespace
+    then nextToken
+    else do
+      start <- use lexTokenStart
+      end <- use lexCurrentOffset
+      hasReported <- use lexHasReported
+      span <-
+        if hasReported || ty /= TError
+          then pure (Span start end)
+          else do
+            errch <- current
+            (ch, n) <- case errch of
+              Just ch -> do
+                move 1
+                return (ch, 1)
+              Nothing -> pure ('\0', 0)
 
-        let s = Span start (end + n)
-        reporter %= reportUnrecognizedToken ch s
-        return s
-  text <- use lexTokenText
-  return $ Token ty span text
+            let s = Span start (end + n)
+            reporter %= reportUnrecognizedToken ch s
+            return s
+      text <- use lexTokenText
+      trivia <- reverse <$> use lexTrivia
+      return $ Token ty span text trivia
 
 lex :: Lexer [Token]
 lex = go []
@@ -252,7 +263,7 @@ lex = go []
   go acc = do
     token <- nextToken
     if tokenType token == TEOF
-      then return $ reverse acc
+      then return $ reverse (token : acc)
       else go (token : acc)
 
 lexInner :: Lexer LexResult

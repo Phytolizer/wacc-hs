@@ -14,10 +14,19 @@ lexerStage :: Document -> LexResult -> IO ()
 lexerStage doc (LexResult tokens lexReporter) = do
   putStrLn "Tokens:"
   mapM_
-    ( \(Token ty s text) ->
+    ( \(Token ty s text trivia) ->
         let Span start _ = s
             pos = docPosition doc start
-         in putStrLn $ "@ " ++ show pos ++ ": " ++ show ty ++ " " ++ show text
+         in putStrLn $
+              "@ "
+                ++ show pos
+                ++ ": "
+                ++ show ty
+                ++ " "
+                ++ show text
+                ++ " ("
+                ++ show (length trivia)
+                ++ " trivia)"
     )
     tokens
   case getDiagnostics lexReporter of

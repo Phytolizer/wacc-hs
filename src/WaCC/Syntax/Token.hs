@@ -50,4 +50,5 @@ data Token = Token
   { tokenType :: TokenType
   , tokenSpan :: Span
   , tokenText :: T.Text
+  , tokenTrivia :: [Token]
   }
