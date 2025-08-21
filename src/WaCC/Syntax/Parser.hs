@@ -65,7 +65,7 @@ matchToken expected = do
       return token
     else do
       pReporter %= reportUnexpectedToken (tokenType token) expected (tokenSpan token)
-      return token
+      return (Token expected (tokenSpan token) T.empty [])
 
 parseExpression :: Parser Expression
 parseExpression = do
